@@ -23,7 +23,9 @@ const userSchema = new Schema(
       trim: true,
       lowercase: true,
       validate: {
-        validator: validator.isEmail(emailId),
+        validator: function (value) {
+          return validator.isEmail(value);
+        },
         message: "{VALUE} is not a valid email address",
       },
     },
@@ -35,19 +37,17 @@ const userSchema = new Schema(
       maxLength: 30,
       trim: true,
       lowercase: true,
-      match: "/^[a-zA-Z0-9_]+$",
+      match: /^[a-zA-Z0-9_]+$/,
     },
     password: {
       type: String,
       required: true,
       minLength: 8,
-      maxLength: 25,
       select: false,
       trim: true,
     },
     confirmPassword: {
       type: String,
-      required: true,
       trim: true,
       validate: {
         validator: function (value) {
@@ -62,7 +62,7 @@ const userSchema = new Schema(
       unique: true,
       trim: true,
       match: [
-        /^\+251[0-9]{8}$/,
+        /^\+251[1-9]{1}[0-9]{8}$/,
         "Invalid Ethiopian phone number format (+251XXXXXXXX)",
       ],
     },
