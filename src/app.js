@@ -9,8 +9,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 const userRouter = require("./routes/user");
+const productRouter = require("./routes/product");
 
 app.use("/", userRouter);
+app.use("/", productRouter);
 
 const connectDb = require("./config/database");
 connectDb()
