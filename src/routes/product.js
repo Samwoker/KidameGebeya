@@ -113,4 +113,14 @@ productRouter.get("/product/:slug/:id", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+productRouter.get("/", async (req, res) => {
+  try {
+    const products = await Product.find({})
+      .sort("-createdAt")
+      .populate("category");
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 module.exports = productRouter;

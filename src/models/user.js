@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const validator = require("validator");
+const bcrypt = require("bcrypt");
 
 const userSchema = new Schema(
   {
@@ -66,11 +67,20 @@ const userSchema = new Schema(
         "Invalid Ethiopian phone number format (+251XXXXXXXX)",
       ],
     },
+    roles: {
+      type: String,
+      default: "user",
+      enum: ["user", "admin"],
+    },
   },
   { timestamps: true }
 );
 
-
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;

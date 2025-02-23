@@ -1,17 +1,12 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const productSchema = Schema({
-  productCode: {
-    type: String,
-    required: true,
-    unique: true,
-  },
   title: {
     type: String,
     required: true,
   },
   imagePath: {
-    type: [String],
+    type: String,
     required: true,
   },
   description: {

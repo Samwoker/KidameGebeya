@@ -3,6 +3,8 @@ const app = express();
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
+const connectDb = require("./config/database");
+
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
@@ -10,16 +12,18 @@ app.use(cookieParser());
 
 const userRouter = require("./routes/user");
 const productRouter = require("./routes/product");
-const router = require("./routes/index");
+const adminRouter = require("./routes/index");
 const cartRouter = require("./routes/cart");
+const orderRouter = require("./routes/order");
+const categoryRouter = require("./routes/category");
 
-app.use("/", router);
+app.use("/", adminRouter);
 app.use("/", userRouter);
 app.use("/", productRouter);
 app.use("/", cartRouter);
+app.use("/", orderRouter);
+app.use("/", categoryRouter);
 
-
-const connectDb = require("./config/database");
 connectDb()
   .then(() => {
     console.log("database connected successfully");

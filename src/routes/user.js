@@ -1,8 +1,7 @@
 const express = require("express");
 const userRouter = express.Router();
-const userAuth = require("../middleware/auth");
+const { userAuth } = require("../middleware/auth");
 const Cart = require("../models/cart");
-const Product = require("../models/product");
 const Order = require("../models/order");
 const User = require("../models/user");
 const { validateLoginApi, validateSignUpApi } = require("../utils/validation");
@@ -17,7 +16,7 @@ userRouter.post("/signup", async (req, res) => {
       emailId,
       username,
       password,
-      confirmPassword,
+      roles,
       phoneNumber,
     } = req.body;
     validateSignUpApi(req);
@@ -37,15 +36,20 @@ userRouter.post("/signup", async (req, res) => {
       lastName,
       emailId,
       username,
+      roles,
       password: hashedPassword,
       phoneNumber,
     });
     await user.save();
     // generating jwt token
 
-    const token = await jwt.sign({ _id: user.id }, process.env.JWT_SECRET_KEY, {
-      expiresIn: "7d",
-    });
+    const token = await jwt.sign(
+      { _id: user.id, roles: user.roles },
+      process.env.JWT_SECRET_KEY,
+      {
+        expiresIn: "7d",
+      }
+    );
     // after the user signup if there is a cart save it to users cart in db
     try {
       const decodedObj = await jwt.verify(token, process.env.JWT_SECRET_KEY);
@@ -55,13 +59,13 @@ userRouter.post("/signup", async (req, res) => {
         if (cart) {
           cart.items = req.body.cart.items;
           cart.totalCost = req.body.cart.totalCost;
-          cart.totalQuantity = req.body.cart.totalQuantity
+          cart.totalQuantity = req.body.cart.totalQuantity;
         } else {
           cart = new Cart({
             user: _id,
             items: req.body.cart.items,
             totalCost: req.body.cart.totalCost,
-            totalQuantity: req.body.cart.totalQuantity
+            totalQuantity: req.body.cart.totalQuantity,
           });
           await cart.save();
         }
@@ -87,16 +91,12 @@ userRouter.post("/login", async (req, res) => {
     if (!user) {
       throw new Error("User not found");
     }
-
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
       throw new Error("Invalid password");
     }
-    const token = await jwt.sign({ _id: user.id }, process.env.JWT_SECRET_KEY, {
+    const token = await jwt.sign({ _id: user.id,roles:user.roles }, process.env.JWT_SECRET_KEY, {
       expiresIn: "7d",
-    });
-    res.cookie("token", token, {
-      expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000),
     });
     try {
       const userId = user._id;
@@ -106,17 +106,16 @@ userRouter.post("/login", async (req, res) => {
           user: userId,
           items: req.body.cart.items,
           totalCost: req.body.cart.totalCost,
-          totalQuantity: req.body.cart.totalQuantity
+          totalQuantity: req.body.cart.totalQuantity,
         });
         await cart.save();
       }
-      if (cart) {
-        res.json({ message: "cart retrieved successfully" });
-      }
-      res.json({ message: "user logged in successfully" });
     } catch (err) {
       res.status(500).json({ error: err });
     }
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000),
+    });
     res.json({
       message: `user logged in successfully`,
       cart: cart || { items: [], totalCost: 0 },
