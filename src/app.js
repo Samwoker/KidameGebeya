@@ -10,9 +10,14 @@ app.use(cookieParser());
 
 const userRouter = require("./routes/user");
 const productRouter = require("./routes/product");
+const router = require("./routes/index");
+const cartRouter = require("./routes/cart");
 
+app.use("/", router);
 app.use("/", userRouter);
 app.use("/", productRouter);
+app.use("/", cartRouter);
+
 
 const connectDb = require("./config/database");
 connectDb()

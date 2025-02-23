@@ -100,14 +100,14 @@ productRouter.get("/product/:slug", async (req, res) => {
 
 productRouter.get("/product/:slug/:id", async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate(category);
+    const product = await Product.findById(req.params.id).populate("category");
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
     res.json({
       message: "Product retrieved successfully",
       product,
-      timestamp: moment().format(),
+      timestamp: moment().format("HH:mm:ss a"),
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

@@ -5,12 +5,7 @@ const Cart = require("../models/cart");
 const Product = require("../models/product");
 const Order = require("../models/order");
 const User = require("../models/user");
-const {
-  userSignUpValidationRules,
-  userLoginValidationRules,
-  validateLogin,
-  validateSignUp,
-} = require("../utils/validation");
+const { validateLoginApi, validateSignUpApi } = require("../utils/validation");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
@@ -25,6 +20,7 @@ userRouter.post("/signup", async (req, res) => {
       confirmPassword,
       phoneNumber,
     } = req.body;
+    validateSignUpApi(req);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -59,11 +55,13 @@ userRouter.post("/signup", async (req, res) => {
         if (cart) {
           cart.items = req.body.cart.items;
           cart.totalCost = req.body.cart.totalCost;
+          cart.totalQuantity = req.body.cart.totalQuantity
         } else {
           cart = new Cart({
             user: _id,
             items: req.body.cart.items,
             totalCost: req.body.cart.totalCost,
+            totalQuantity: req.body.cart.totalQuantity
           });
           await cart.save();
         }
@@ -83,7 +81,7 @@ userRouter.post("/signup", async (req, res) => {
 userRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
-    // validateLoginApi(req);
+    validateLoginApi(req);
     // checking if the user exists with the given emailId
     const user = await User.findOne({ emailId }).select("+password");
     if (!user) {
@@ -108,6 +106,7 @@ userRouter.post("/login", async (req, res) => {
           user: userId,
           items: req.body.cart.items,
           totalCost: req.body.cart.totalCost,
+          totalQuantity: req.body.cart.totalQuantity
         });
         await cart.save();
       }

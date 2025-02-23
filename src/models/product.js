@@ -11,7 +11,7 @@ const productSchema = Schema({
     required: true,
   },
   imagePath: {
-    type: String,
+    type: [String],
     required: true,
   },
   description: {
