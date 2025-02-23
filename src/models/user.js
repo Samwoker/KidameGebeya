@@ -44,7 +44,6 @@ const userSchema = new Schema(
       type: String,
       required: true,
       minLength: 8,
-      select: false,
       trim: true,
     },
     confirmPassword: {

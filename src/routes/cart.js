@@ -8,7 +8,7 @@ cartRouter.post("/add-to-cart/:id", userAuth, async (req, res) => {
   try {
     const productId = req.params.id;
     const userId = req.user._id;
-    const cart = await Cart.findOne({ user: userId });
+    let cart = await Cart.findOne({ user: userId });
     if (!cart) {
       cart = new Cart({ user: userId });
     }
@@ -64,12 +64,13 @@ cartRouter.delete("/remove/:id", userAuth, async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
     const itemIndex = cart.items.findIndex(
-      (item) => item.productId === productId
+      (item) => item.productId.toString() === productId
     );
     if (itemIndex > -1) {
       cart.items[itemIndex].quantity--;
       cart.items[itemIndex].price -= product.price;
       cart.totalCost -= product.price;
+      cart.totalQuantity--;
       if (cart.items[itemIndex].quantity <= 0) {
         cart.items.splice(itemIndex, 1);
       }
@@ -101,9 +102,9 @@ cartRouter.delete("/remove-all/:id", userAuth, async (req, res) => {
     }
 
     const itemIndex = cart.items.findIndex(
-      (item) => item.productId === productId
+      (item) => item.productId.toString() === productId
     );
-    if (itemIndex > 0) {
+    if (itemIndex >= 0) {
       cart.totalQuantity -= cart.items[itemIndex].quantity;
       cart.totalCost -= product.price * cart.items[itemIndex].quantity;
       cart.items.splice(itemIndex, 1);

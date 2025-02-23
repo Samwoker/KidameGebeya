@@ -16,6 +16,7 @@ userRouter.post("/signup", async (req, res) => {
       emailId,
       username,
       password,
+      confirmPassword,
       roles,
       phoneNumber,
     } = req.body;
@@ -95,9 +96,13 @@ userRouter.post("/login", async (req, res) => {
     if (!isPasswordMatch) {
       throw new Error("Invalid password");
     }
-    const token = await jwt.sign({ _id: user.id,roles:user.roles }, process.env.JWT_SECRET_KEY, {
-      expiresIn: "7d",
-    });
+    const token = await jwt.sign(
+      { _id: user.id, roles: user.roles },
+      process.env.JWT_SECRET_KEY,
+      {
+        expiresIn: "7d",
+      }
+    );
     try {
       const userId = user._id;
       let cart = await Cart.findOne({ user: userId });
@@ -138,6 +143,14 @@ userRouter.get("/profile", userAuth, async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+});
+
+userRouter.post("/logout", async (req, res) => {
+  res
+    .cookie("token", null, {
+      expires: new Date(Date.now()),
+    })
+    .send("user logged out successfully");
 });
 
 module.exports = userRouter;
