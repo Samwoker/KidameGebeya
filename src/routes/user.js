@@ -16,14 +16,14 @@ userRouter.post("/signup", async (req, res) => {
       emailId,
       username,
       password,
-      confirmPassword,
       roles,
       phoneNumber,
     } = req.body;
     validateSignUpApi(req);
 
+    console.log("hashing password");
     const hashedPassword = await bcrypt.hash(password, 10);
-
+    console.log("hashed password", hashedPassword);
     // check if the user already exists
     const existingUser = await User.findOne({
       $or: [{ emailId }, { username }, { phoneNumber }],
@@ -92,7 +92,7 @@ userRouter.post("/login", async (req, res) => {
     if (!user) {
       throw new Error("User not found");
     }
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    const isPasswordMatch = await user.validatePassword(password);
     if (!isPasswordMatch) {
       throw new Error("Invalid password");
     }
@@ -103,7 +103,7 @@ userRouter.post("/login", async (req, res) => {
         expiresIn: "7d",
       }
     );
-    try {
+   
       const userId = user._id;
       let cart = await Cart.findOne({ user: userId });
       if (req.body.cart && !cart) {
@@ -115,9 +115,6 @@ userRouter.post("/login", async (req, res) => {
         });
         await cart.save();
       }
-    } catch (err) {
-      res.status(500).json({ error: err });
-    }
     res.cookie("token", token, {
       expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000),
     });
