@@ -1,8 +1,6 @@
 const mongoose = require("mongoose");
-const slug = require("mongoose-slug-generator");
+const slugify = require("slugify");
 const { Schema } = mongoose;
-
-mongoose.plugin(slug);
 const categorySchema = new Schema({
   title: {
     type: String,
@@ -13,6 +11,13 @@ const categorySchema = new Schema({
     unique: true,
     slug: "title",
   },
+});
+
+categorySchema.pre("save", function (next) {
+  if (this.isModified("title")) {
+    this.slug = slugify(this.title, { lower: true, strict: true });
+  }
+  next();
 });
 
 const Category = mongoose.model("Category", categorySchema);
