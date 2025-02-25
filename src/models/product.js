@@ -28,6 +28,11 @@ const productSchema = Schema({
     type: Boolean,
     required: true,
   },
+  productCode: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now(),

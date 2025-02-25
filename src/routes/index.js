@@ -10,10 +10,25 @@ adminRouter.post(
   upload.single("image"),
   async (req, res) => {
     try {
-      const { title, description, price, category, manufacturer, available } =
-        req.body;
+      const {
+        title,
+        description,
+        price,
+        category,
+        manufacturer,
+        available,
+        productCode,
+      } = req.body;
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
+      }
+      const existingProduct = await Product.findOne({
+        productCode: productCode,
+      });
+      if (existingProduct) {
+        return res
+          .status(400)
+          .json({ error: "Product with the same productCode already exists" });
       }
       const newProduct = new Product({
         title,
@@ -22,6 +37,7 @@ adminRouter.post(
         category,
         manufacturer,
         available,
+        productCode,
         imagePath: req.file.path,
       });
       await newProduct.save();
