@@ -1,48 +1,57 @@
+const { unix } = require("moment");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const orderSchema = new Schema({
+  sessionId: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  cart: {
-    totalQuantity: {
-      type: Number,
-      required: true,
-    },
-    totalCost: {
-      type: Number,
-      required: true,
-    },
-    items: [
-      {
-        productId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
-        },
-        quantity: {
-          type: Number,
-          required: true,
-        },
-        price: {
-          type: Number,
-          required: true,
-        },
-        title: {
-          type: String,
-        },
-        productCode: {
-          type: String,
-        },
-      },
-    ],
+  totalQuantity: {
+    type: Number,
+    required: true,
   },
+  totalCost: {
+    type: Number,
+    required: true,
+  },
+  items: [
+    {
+      productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+      quantity: {
+        type: Number,
+        required: true,
+      },
+      price: {
+        type: Number,
+        required: true,
+      },
+      title: {
+        type: String,
+      },
+      productCode: {
+        type: String,
+      },
+    },
+  ],
+
   address: {
     type: String,
     required: true,
   },
   paymentId: {
+    type: String,
+    required: true,
+  },
+  paymentStatus: {
     type: String,
     required: true,
   },
